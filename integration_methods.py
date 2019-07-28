@@ -60,6 +60,7 @@ convergence_n = 52
 for n in range(2,convergence_n):
     index += [n]
     integrated_value2 = 0
+    integral_value = 0
     number_of_points = n
     t2 = np.linspace(lower_bound, upper_bound, num=number_of_points)
     dt2 = t2[1] - t2[0]
@@ -67,11 +68,14 @@ for n in range(2,convergence_n):
     my_result2 = integrate(f2(t2), t2, dt2)
     for elements in my_result2:
         integrated_value2 += elements
+        integral_value += elements
     error_ydata += [integrated_value2]
 
 # Compute best value error:
 best_error = abs(error_ydata[-1] - (pi**0.5))
-print("\nBest error from my method, n:", best_error, ',', convergence_n)
+print("\nBest error from my method:", best_error, 'N,', convergence_n)
+print("Best value:", integrated_value, 'N:', convergence_n )
+
 
 # Convergence plot
 plt.plot(index, error_ydata, 'b--')
