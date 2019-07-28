@@ -73,8 +73,7 @@ for n in range(2,convergence_n):
 best_error = abs(error_ydata[-1] - (pi**0.5))
 print("\nBest error from my method, n:", best_error, ',', convergence_n)
 
-#todo:
-# Make a convergence plot for the different methods (number of points vs real value = sqrt(pi))
+# Convergence plot
 plt.plot(index, error_ydata, 'b--')
 plt.axhline(y=pi**0.5, color='r', linestyle='-')
 plt.title("Convergence plot of methods")
