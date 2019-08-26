@@ -26,7 +26,7 @@ i_0 = 8  #Parameter used in the calculation of the beam width, ranges from 8 to 
 def nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest):
     width_list = []
     for i in range(0, int(N_unit_cells/2)):
-        width_list.append([[None, None]])  #Creates a list of lists with the indices i,j denoting the unit cell # and whether it is a local max or min, respectively
+        width_list.append([None, None])  #Creates a list of lists with the indices i,j denoting the unit cell # and whether it is a local max or min, respectively
         # width_list = [[None, None] * int(N_unit_cells/2)]    #Generates an empty list for storage of widths
 
     for i in range(0, int(N_unit_cells / 2)):  # /2 because the beam widths are symmetric across the central defect
@@ -48,8 +48,8 @@ def nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest):
     return width_list   #Half of the beam widths, because it is symmetric across the central defect
 
 
-test = nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest)
-print(test)
+width_parameters = nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest)
+print(width_parameters)
 
 
 
@@ -60,17 +60,16 @@ print(test)
 
 
 
-list = str([1,2,3])
+
 # Program to show various ways to read and
 # write data in a file.
 file1 = open("nanobeam_geometry_parameters.txt", "w")
 
-L_test = str(test)
+L_width_parameters = str(width_parameters)
 # \n is placed to indicate EOL (End of Line)
-file1.writelines('Width list: \n')
-file1.writelines(L_test)
-file1.writelines("\n\ntest\n")
-file1.writelines(list)
+file1.writelines('Width list [[w_max(i,j), w_min(i,j)]]: \n \n')
+file1.writelines(L_width_parameters)
+
 file1.close()  # to change file access modes
 
 
