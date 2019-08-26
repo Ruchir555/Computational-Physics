@@ -23,7 +23,7 @@ i_0 = 8  #Parameter used in the calculation of the beam width, ranges from 8 to 
 
 # Generating width:
 
-def nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest):
+def nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest):
     width_list = []
     for i in range(0, int(N_unit_cells/2)):
         width_list.append([None, None])  #Creates a list of lists with the indices i,j denoting the unit cell # and whether it is a local max or min, respectively
@@ -35,7 +35,7 @@ def nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest):
             if((j%2) == 0):   #even index, local maximum
                 if(i == 0):   #first maximum
                     width_list[i][0] = beam_width_narrowest * 2.3
-                else:
+                else:   #Scale the width of the subsequent unit cell based on the Gaussian envelope:
                     width_list[i][0] = ((1 - (1-alpha_width)*(math.exp(-((i**2)/(i_0**2)))))/(1 - (1-alpha_width)*(math.exp(-(((i-1)**2)/(i_0**2)))))) * width_list[i-1][0]
 
             if((j%2) != 0):   #odd index, local minimum
@@ -48,16 +48,24 @@ def nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest):
     return width_list   #Half of the beam widths, because it is symmetric across the central defect
 
 
-width_parameters = nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest)
+
+def nanobeam_unitcell_lengths(N_unit_cells, beam_length):
+    length_list = [None] * int(N_unit_cells/2)
+    width = nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest)  #List of lists of half of the nanobeam unit cell widths
+
+    for i in range(0, int(N_unit_cells/2)):
+        length_list[i] = 1/(math.sqrt(width[i][0])) * 10**(-6)      # Lc(i) ~ 1/(sqrt(w_max(i)), the multiplicative factor of 10**(-6) is arbitrary
+
+    return length_list
+
+
+length_parameters = nanobeam_unitcell_lengths(N_unit_cells, beam_length)
+print(length_parameters)
+
+
+
+width_parameters = nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest)
 print(width_parameters)
-
-
-
-
-
-
-
-
 
 
 
@@ -66,9 +74,13 @@ print(width_parameters)
 file1 = open("nanobeam_geometry_parameters.txt", "w")
 
 L_width_parameters = str(width_parameters)
+L_length_parameters = str(length_parameters)
+
 # \n is placed to indicate EOL (End of Line)
 file1.writelines('Width list [[w_max(i,j), w_min(i,j)]]: \n \n')
 file1.writelines(L_width_parameters)
+file1.writelines('\n \n Length list [L_c(i)]: \n \n')
+file1.writelines(L_length_parameters)
 
 file1.close()  # to change file access modes
 
