@@ -20,6 +20,7 @@ i_0 = 8  #Parameter used in the calculation of the beam width, ranges from 8 to 
 
 
 
+
 # Generating width:
 
 def nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest):
@@ -28,22 +29,23 @@ def nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest):
         width_list.append([[None, None]])  #Creates a list of lists with the indices i,j denoting the unit cell # and whether it is a local max or min, respectively
         # width_list = [[None, None] * int(N_unit_cells/2)]    #Generates an empty list for storage of widths
 
-    for i in range(0, int(N_unit_cells/2)):  #/2 because the beam widths are symmetric across the central defect
+    for i in range(0, int(N_unit_cells / 2)):  # /2 because the beam widths are symmetric across the central defect
+        for j in range(0, 2):  #Iterate across inner indices
 
-        if((i%2) == 0):   #even index, local maximum
-            if(i == 0):   #first maximum
-                width_list[i][0] = beam_width_narrowest * 2.3
-            else:
-                width_list[i][0] = ((1 - (1-alpha_width)*(math.exp(-((i**2)/(i_0**2)))))/(1 - (1-alpha_width)*(math.exp(-(((i-1)**2)/(i_0**2)))))) * width_list[i-1][0]
+            if((j%2) == 0):   #even index, local maximum
+                if(i == 0):   #first maximum
+                    width_list[i][0] = beam_width_narrowest * 2.3
+                else:
+                    width_list[i][0] = ((1 - (1-alpha_width)*(math.exp(-((i**2)/(i_0**2)))))/(1 - (1-alpha_width)*(math.exp(-(((i-1)**2)/(i_0**2)))))) * width_list[i-1][0]
 
-        if((i%2) !=0):   #odd index, local minimum
-            if(i==1):   #first minimum
-                width_list[i][1] = beam_width_narrowest
-            else:
-                width_list[i][1] = (width_list[i-1][0])/2.3
+            if((j%2) != 0):   #odd index, local minimum
+                if(i == 0):   #first minimum
+                    width_list[i][1] = beam_width_narrowest
+                else:
+                    width_list[i][1] = (width_list[i-1][0])/2.3
 
     # width_list += width_list
-    return width_list
+    return width_list   #Half of the beam widths, because it is symmetric across the central defect
 
 
 test = nanobeam_unitcell_widths(N_unit_cells, beam_length, beam_width_narrowest)
@@ -81,14 +83,23 @@ file1.close()  # to change file access modes
 # for i in range(0, N_unit_cells):
 #     print(1 - (1-alpha_width)*(math.exp(-((i**2)/(i_0**2)))))
 
+
 # width_list = []
 # for i in range(0, int(38 / 2)):
 #     width_list.append([None, None])
 # print(width_list)
 
 
+# for i in range(0,2):
+#     print(i)
+
+#     OUT: 0,1
 
 
+# for i in range(0, int(N_unit_cells/2)):
+#     print(i)
+
+#     OUT: 0-18
 
 
 
