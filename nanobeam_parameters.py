@@ -49,6 +49,8 @@ def nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest):
 
 
 
+
+# Generating lengths:
 def nanobeam_unitcell_lengths(N_unit_cells, beam_length):
     length_list = [None] * int(N_unit_cells/2)
     width = nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest)  #List of lists of half of the nanobeam unit cell widths
@@ -59,9 +61,11 @@ def nanobeam_unitcell_lengths(N_unit_cells, beam_length):
     return length_list
 
 
+
+# Testing:
+
 length_parameters = nanobeam_unitcell_lengths(N_unit_cells, beam_length)
 print(length_parameters)
-
 
 
 width_parameters = nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest)
@@ -69,8 +73,7 @@ print(width_parameters)
 
 
 
-# Program to show various ways to read and
-# write data in a file.
+# Write data generated to a .txt file:
 file1 = open("nanobeam_geometry_parameters.txt", "w")
 
 L_width_parameters = str(width_parameters)
