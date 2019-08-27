@@ -59,7 +59,7 @@ def sum_list(L):    #Testing function
 def nanobeam_unitcell_lengths(N_unit_cells, beam_length):
     length_list = [None] * int(N_unit_cells/2)  #Initialize length list
     width = nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest)  #List of lists of half of the nanobeam unit cell widths, from before
-    m = 0.5 * 10**(-6)   #initialize multiplicative factor for convergence loop of length parameters
+    m = 0.5 * 10**(-6)   #initialize multiplicative factor for scaling length parameters
     optimization_factor = 0 #initialize quantity to help determine m
     allowed_half_length_total = (beam_length - L_d)/2    # Allowed length for one half of the unit cells on the nanobeam
 
@@ -74,6 +74,15 @@ def nanobeam_unitcell_lengths(N_unit_cells, beam_length):
     return length_list  #Half of the beam length, because it only used half of the beam widths
 
 
+def return_two_lists(L):    #takes in a list of lists in the form [ [,], [,], [,],...] and returns two lists depending on which index the item is in in the inner list
+    L_index_0 = []
+    L_index_1 = []  #initiate lists to store data
+
+    for i in range(0, len(L)):
+        L_index_0.append(L[i][0])
+        L_index_1.append(L[i][1])
+
+    return L_index_0, L_index_1
 
 
 
@@ -94,17 +103,35 @@ print("\n Length sum:", length_sum)       # We expect this to be around 2mm, or 
 print("0.5*(Beam length - L_d) - Length sum:", 0.5* (beam_length - L_d) - length_sum)   # If the lengths are correctly computed, then this should be zero, or very small due to floating point error
 
 
+w_max, w_min = return_two_lists(width_parameters)   #Seperates the max and min width parameters into two lists
+
+# print(w_max)
+# print(w_min)
+
+
+
 # Write data generated to a .txt file:
 file1 = open("nanobeam_geometry_parameters.txt", "w")
 
 L_width_parameters = str(width_parameters)
 L_length_parameters = str(length_parameters)
+L_w_max = str(w_max)
+L_w_min = str(w_min)
+
 
 # \n is placed to indicate EOL (End of Line)
 file1.writelines('Width list [[w_max(i,j), w_min(i,j)]]: \n \n')
 file1.writelines(L_width_parameters)
 file1.writelines('\n \n Length list [L_c(i)]: \n \n')
 file1.writelines(L_length_parameters)
+file1.writelines("\n \n Length sum:")
+file1.writelines(str(length_sum))
+file1.writelines("\n \n 0.5*(Beam length - L_d) - Length sum:")
+file1.writelines(str(0.5* (beam_length - L_d) - length_sum))
+file1.writelines("\n \n Unit cell width maximums (w_max(i)): \n \n")
+file1.writelines(L_w_max)
+file1.writelines("\n \n Unit cell width minimums (w_min(i)): \n \n")
+file1.writelines(L_w_min)
 
 file1.close()  # to change file access modes
 
@@ -136,6 +163,12 @@ file1.close()  # to change file access modes
 
 #     OUT: 0-18
 
+# print(L_width_parameters[4])
+#  OUT: 2
 
-
+# l = [[1,2],[3,4],[5,6]]
+#
+# l1, l2 = return_two_lists(l)
+# print(l1)
+# print(l2)
 
