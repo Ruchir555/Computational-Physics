@@ -5,6 +5,7 @@
 # There are a set of tunable parameters one may change such that the resulting nanobeam geometry changes accordingly
 # The parameters are then returned in a .txt file for easy viewing and accessing
 # To run the program, simple type the desired parameters below and compile as usual
+# Can be used in conjunction with an Excel spreadsheet to visualize and organize the data in a way the numerical simulation program understands
 
 import math
 
@@ -25,9 +26,8 @@ L_d = 50 * 10**(-6)  #[um], Central defect length, this typically ranges from th
 
 def nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest):
     width_list = []
-    for i in range(0, int(N_unit_cells/2)):
+    for i in range(0, int(N_unit_cells/2)): #Generates an empty list for storage of widths
         width_list.append([None, None])  #Creates a list of lists with the indices i,j denoting the unit cell # and whether it is a local max or min, respectively
-        # width_list = [[None, None] * int(N_unit_cells/2)]    #Generates an empty list for storage of widths
 
     for i in range(0, int(N_unit_cells / 2)):  # /2 because the beam widths are symmetric across the central defect
         for j in range(0, 2):  #Iterate across inner indices
@@ -104,7 +104,6 @@ print("0.5*(Beam length - L_d) - Length sum:", 0.5* (beam_length - L_d) - length
 
 
 w_max, w_min = return_two_lists(width_parameters)   #Seperates the max and min width parameters into two lists
-
 # print(w_max)
 # print(w_min)
 
