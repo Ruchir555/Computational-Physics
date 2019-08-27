@@ -17,7 +17,7 @@ beam_thickness = 20 * 10**(-9)  #[nm], this parameter is not explicitly used in 
 N_unit_cells = 38  #This is the number of unit cells in the nanobeam, typically less than 100, must be an even number
 alpha_width = 0.15  #Parameter used in the calculation of the beam width, ranges from 0.15 to 0.2
 i_0 = 8  #Parameter used in the calculation of the beam width, ranges from 8 to 10
-
+L_d = 50 * 10**(-6)  #[um], Central defect length, this typically ranges from the 10s to 100 um
 
 
 
@@ -48,29 +48,50 @@ def nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest):
     return width_list   #Half of the beam widths, because it is symmetric across the central defect
 
 
+def sum_list(L):    #Testing function
+    accum = 0
+    for element in L:
+        accum += element
+    return accum
 
 
 # Generating lengths:
 def nanobeam_unitcell_lengths(N_unit_cells, beam_length):
-    length_list = [None] * int(N_unit_cells/2)
-    width = nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest)  #List of lists of half of the nanobeam unit cell widths
+    length_list = [None] * int(N_unit_cells/2)  #Initialize length list
+    width = nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest)  #List of lists of half of the nanobeam unit cell widths, from before
+    m = 0.5 * 10**(-6)   #initialize multiplicative factor for convergence loop of length parameters
+    optimization_factor = 0 #initialize quantity to help determine m
+    allowed_half_length_total = (beam_length - L_d)/2    # Allowed length for one half of the unit cells on the nanobeam
 
     for i in range(0, int(N_unit_cells/2)):
-        length_list[i] = 1/(math.sqrt(width[i][0])) * 10**(-6)      # Lc(i) ~ 1/(sqrt(w_max(i)), the multiplicative factor of 10**(-6) is arbitrary
+        optimization_factor += 1/(math.sqrt(width[i][0]))
 
-    return length_list
+    m = allowed_half_length_total/optimization_factor
+
+    for i in range(0, int(N_unit_cells/2)):     #Scale the lengths accordingly as per the respective width of the unit cell
+        length_list[i] = 1/(math.sqrt(width[i][0])) * m     # Lc(i) ~ 1/(sqrt(w_max(i)), the multiplicative factor of m is chosen such that the allowed_helf_length_total matches the length_list total
+
+    return length_list  #Half of the beam length, because it only used half of the beam widths
+
+
 
 
 
 # Testing:
 
 length_parameters = nanobeam_unitcell_lengths(N_unit_cells, beam_length)
+print("Length Parameters:\n")
 print(length_parameters)
 
 
 width_parameters = nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest)
+print("\n Width Parameters:\n")
 print(width_parameters)
 
+
+length_sum = sum_list(length_parameters)
+print("\n Length sum:", length_sum)       # We expect this to be around 2mm, or half of the total beam width
+print("0.5*(Beam length - L_d) - Length sum:", 0.5* (beam_length - L_d) - length_sum)   # If the lengths are correctly computed, then this should be zero, or very small due to floating point error
 
 
 # Write data generated to a .txt file:
