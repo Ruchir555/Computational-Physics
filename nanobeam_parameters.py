@@ -1,7 +1,7 @@
 # Nanobeam Geometric Parameters Generator
 # Author: Ruchir Tullu
 
-# This program generates a set of nanobeam geometry paremeters to be used in numerical simulations (e.g. COMSOL Multiphysics)
+# This program generates a set of nanobeam geometry parameters to be used in numerical simulations (e.g. COMSOL Multiphysics)
 # There are a set of tunable parameters one may change such that the resulting nanobeam geometry changes accordingly
 # The parameters are then returned in a .txt file for easy viewing and accessing
 # To run the program, simple type the desired parameters below and compile as usual
