@@ -119,7 +119,7 @@ def add_units_to_parameter_list(parameter_list, unit):     #Function for adding 
 
 
 
-# Testing:
+# Generate data:
 
 length_parameters = nanobeam_unitcell_lengths(N_unit_cells, beam_length)
 print("Length Parameters:\n")
