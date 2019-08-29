@@ -7,6 +7,18 @@
 # To run the program, simple type the desired parameters below and compile as usual
 # Can be used in conjunction with an Excel spreadsheet to visualize and organize the data in a way the numerical simulation program understands
 
+# Instructions for running program and using the generated data in Excel & COMSOL Multiphysics:
+# 1) Choose appropriate parameters below
+# 2) Run program (compile)
+# 3) Copy-paste data lists from generated text file to an Excel spreadsheet
+# 4) Use "Text to Columns" option under "Data" tab in Excel to convert data into columns
+# 5) In the pop-up wizard, choose "Delimited", with the delimiters being "Tab", "Comma". Choose the format as "General".
+# 6) Copy the generated columns; choose a location to paste, and do: "paste special" -> "transpose"
+# 7) In COMSOL, under the "Parameters" section, choose "Load from file" and select the Excel spreadsheet
+# 8) Choose the appropriate columns/rows. Note that the format COMSOL prefers in adjacent columns is: [name][value[units]][description]
+# 9) Note that the column next to the data chosen from the spreadsheet is the description of the parameter (data chosen) if left unselected
+
+
 import math
 
 
@@ -19,11 +31,11 @@ N_unit_cells = 38  #This is the number of unit cells in the nanobeam, typically 
 alpha_width = 0.15  #Parameter used in the calculation of the beam width, ranges from 0.15 to 0.2
 i_0 = 8  #Parameter used in the calculation of the beam width, ranges from 8 to 10
 L_d = 50 * 10**(-6)  #[um], Central defect length, this typically ranges from the 10s to 100 um
+length_units = ' [m] '   #Meters, this is used in a function to generate numbers easily recognizable by COMSOL
 
 
 
 # Generating width:
-
 def nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest):
     width_list = []
     for i in range(0, int(N_unit_cells/2)): #Generates an empty list for storage of widths
@@ -44,10 +56,10 @@ def nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest):
                 else:
                     width_list[i][1] = (width_list[i-1][0])/2.3
 
-    # width_list += width_list
     return width_list   #Half of the beam widths, because it is symmetric across the central defect
 
 
+# Sum elements of a list:
 def sum_list(L):    #Testing function
     accum = 0
     for element in L:
@@ -74,6 +86,7 @@ def nanobeam_unitcell_lengths(N_unit_cells, beam_length):
     return length_list  #Half of the beam length, because it only used half of the beam widths
 
 
+# List splitting function:
 def return_two_lists(L):    #takes in a list of lists in the form [ [,], [,], [,],...] and returns two lists depending on which index the item is in in the inner list
     L_index_0 = []
     L_index_1 = []  #initiate lists to store data
@@ -83,6 +96,26 @@ def return_two_lists(L):    #takes in a list of lists in the form [ [,], [,], [,
         L_index_1.append(L[i][1])
 
     return L_index_0, L_index_1
+
+
+# Add units to values in a list:
+def add_units_to_parameter_list(parameter_list, unit):     #Function for adding units (e.g.: [m]) to each index of a list. Unit must be a string, pre-declared
+    index_list = [None] * (len(parameter_list))     #One less comma than the number of elements in a list
+    index = 0   #Initialize index
+    updating_index = 0  #Initialize index to be updated in loop
+    str_parameter_list = str(parameter_list)    #Easier to work with it in string form
+
+    for i in range(0, len(index_list)):
+        if(i==0):
+            index = str_parameter_list.find(",")    #Look for index of comma that separates the numbers
+            index_list[i] = index   #Add to index list
+            str_parameter_list = str_parameter_list[:index] + unit + str_parameter_list[index:]     #Slicing notation, adds unit after the number
+        else:
+            updating_index = str_parameter_list.find(",", index_list[i-1] + 6 )   #Shifts index in string such that next comma can be considered without repetition
+            index_list[i] = updating_index  #Update index list
+            str_parameter_list = str_parameter_list[:updating_index] + unit + str_parameter_list[updating_index:]     #Slicing notation, adds unit after the number
+
+    return str_parameter_list
 
 
 
@@ -104,18 +137,17 @@ print("0.5*(Beam length - L_d) - Length sum:", 0.5* (beam_length - L_d) - length
 
 
 w_max, w_min = return_two_lists(width_parameters)   #Seperates the max and min width parameters into two lists
-# print(w_max)
-# print(w_min)
 
 
 
 # Write data generated to a .txt file:
 file1 = open("nanobeam_geometry_parameters.txt", "w")
 
-L_width_parameters = str(width_parameters)
-L_length_parameters = str(length_parameters)
-L_w_max = str(w_max)
-L_w_min = str(w_min)
+# String format of lists that hold the generated data to be printed to the text file
+L_width_parameters = add_units_to_parameter_list(width_parameters, length_units)  #str(width_parameters)
+L_length_parameters = add_units_to_parameter_list(length_parameters, length_units)  #str(length_parameters)
+L_w_max = add_units_to_parameter_list(w_max,length_units)  #str(w_max)
+L_w_min = add_units_to_parameter_list(w_min, length_units)  #str(w_min)
 
 
 # \n is placed to indicate EOL (End of Line)
@@ -131,10 +163,10 @@ file1.writelines("\n \n Unit cell width maximums (w_max(i)): \n \n")
 file1.writelines(L_w_max)
 file1.writelines("\n \n Unit cell width minimums (w_min(i)): \n \n")
 file1.writelines(L_w_min)
+file1.writelines("\n \n Central defect length:")
+file1.writelines(str(L_d))
 
 file1.close()  # to change file access modes
-
-
 
 
 
@@ -171,3 +203,22 @@ file1.close()  # to change file access modes
 # print(l1)
 # print(l2)
 
+
+# Precursor/ideas to add_units_to_parameter_list() function:
+
+# print(L_w_max)
+# index = L_w_max.find(',')
+# L_w_max = L_w_max[:index] + ' [m] ' + L_w_max[index:]
+# index1 = L_w_max.find(',', index+6)
+# L_w_max = L_w_max[:index1] + ' [m] ' + L_w_max[index1:]
+# index2 = L_w_max.find(",", index1+6)
+# L_w_max = L_w_max[:index2] + ' [m] ' + L_w_max[index2:]
+#
+# print(index)
+# print(index1)
+# print(index2)
+# print(L_w_max)
+# print(len(w_max))
+
+# new_string = add_units_to_parameter_list(w_max, length_units)
+# print("\n\nnew\n", new_string)
