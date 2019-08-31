@@ -24,14 +24,14 @@ import math
 
 # Tunable parameters:
 
-beam_length = 4 * 10**(-3)  #[mm], this is the total nanobeam length
-beam_width_narrowest = 400 * 10**(-9)  #[nm], this is the minimum beam width near the central defect
-beam_thickness = 20 * 10**(-9)  #[nm], this parameter is not explicitly used in this program, just for reference
+beam_length = 4 * 10**(-3)  #Scale of 10^0 [mm], this is the total nanobeam length
+beam_width_narrowest = 400 * 10**(-9)  #Scale of 10^2 [nm], this is the minimum beam width near the central defect
+beam_thickness = 20 * 10**(-9)  #Scale of 10^1 [nm], this parameter is not explicitly used in this program, just for reference
 N_unit_cells = 38  #This is the number of unit cells in the nanobeam, typically less than 100, must be an even number
 alpha_width = 0.15  #Parameter used in the calculation of the beam width, ranges from 0.15 to 0.2
 i_0 = 8  #Parameter used in the calculation of the beam width, ranges from 8 to 10
-L_d = 50 * 10**(-6)  #[um], Central defect length, this typically ranges from the 10s to 100 um
-length_units = ' [m] '   #Meters, this is used in a function to generate numbers easily recognizable by COMSOL
+L_d = 50 * 10**(-6)  #Scale of 10^1 [um], Central defect length, this typically ranges from the 10s to 100 um
+length_units = ' [m] '   #Unit of meters, this is used in a function to generate numbers easily recognizable by COMSOL
 
 
 
