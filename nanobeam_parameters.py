@@ -24,7 +24,7 @@ import math
 
 # Tunable parameters:
 
-beam_length = 4 * 10**(-3)  #[mm]
+beam_length = 4 * 10**(-3)  #[mm], this is the total nanobeam length
 beam_width_narrowest = 400 * 10**(-9)  #[nm], this is the minimum beam width near the central defect
 beam_thickness = 20 * 10**(-9)  #[nm], this parameter is not explicitly used in this program, just for reference
 N_unit_cells = 38  #This is the number of unit cells in the nanobeam, typically less than 100, must be an even number
@@ -59,12 +59,14 @@ def nanobeam_unitcell_widths(N_unit_cells, beam_width_narrowest):
     return width_list   #Half of the beam widths, because it is symmetric across the central defect
 
 
+
 # Sum elements of a list:
 def sum_list(L):    #Testing function
     accum = 0
     for element in L:
         accum += element
     return accum
+
 
 
 # Generating lengths:
@@ -86,6 +88,7 @@ def nanobeam_unitcell_lengths(N_unit_cells, beam_length):
     return length_list  #Half of the beam length, because it only used half of the beam widths
 
 
+
 # List splitting function:
 def return_two_lists(L):    #takes in a list of lists in the form [ [,], [,], [,],...] and returns two lists depending on which index the item is in in the inner list
     L_index_0 = []
@@ -96,6 +99,7 @@ def return_two_lists(L):    #takes in a list of lists in the form [ [,], [,], [,
         L_index_1.append(L[i][1])
 
     return L_index_0, L_index_1
+
 
 
 # Add units to values in a list:
@@ -119,6 +123,58 @@ def add_units_to_parameter_list(parameter_list, unit):     #Function for adding 
 
 
 
+# Helper function to sum a list till a certain index:
+def sum_list_till_particular_index(lst, start_index, stop_index):
+    accumulator = 0
+
+    if (stop_index < start_index):  # Edge case, this is the intended functionality
+        return 0
+
+    for i in range(start_index, stop_index):
+        accumulator += lst[i]
+
+    return accumulator
+
+
+
+# Generating positions of half unit cells (maximum and minimum widths within a unit cell)(center):
+def generate_positions_of_half_unit_cells(N_unit_cells, L_d, length_list):      # Works for the origin centered at the center of the central defect in the nanobeam
+    position_list_max = [None] * int(N_unit_cells/2)    # Max positions of w_max(i)
+    position_list_min = [None] * int(N_unit_cells/2)    # Min positions of w_min(i)
+    counter = 1     # To remember if the half-unit cell is max or min width; start is always from max (immediately after the central defect)
+    max_index_counter = 0   #To index the max position list
+    min_index_counter = 0   #To index the max position list
+    length_counter = 0      #To index the length_list
+
+    for i in range(0, N_unit_cells):
+        if (counter%2 != 0):    #max width
+            position_list_max[max_index_counter] = (L_d/2) + sum_list_till_particular_index(length_list, 0, length_counter-1) + (length_list[length_counter]/2) + (length_list[length_counter]/4)
+            max_index_counter += 1  #Update index counter
+
+        if (counter%2 == 0):     #min width
+            position_list_min[min_index_counter] = (L_d/2) + sum_list_till_particular_index(length_list, 0, length_counter-1) + (length_list[length_counter]/2) - (length_list[length_counter]/4)
+            min_index_counter += 1  #Update index counter
+            length_counter += 1     #Update length_counter only if a min pair to the max has been reached (since both use same length Lc(i) value)
+
+        counter += 1    #Update counter once a loop has been done so that the appropriate sub-loop triggers next iteration (max/min)
+
+    return position_list_max, position_list_min   # position of ith unit cell, max or min, i = 0, i, 2, ... N_unit_cell/2
+
+
+
+# Generating positions of unit cells (center):
+def generate_positions_of_unit_cells(N_unit_cells, L_d, length_list):  # Works for the origin centered at the center of the central defect in the nanobeam
+    position_list = [None] * int(N_unit_cells/2)    #Generate half of the lengths, symmetric about the central defect
+
+    for i in range(0, int(N_unit_cells/2)):
+        position_list[i] = (L_d/2) + sum_list_till_particular_index(length_list, 0, i-1) +(length_list[i]/2)
+
+    return position_list    # position of ith unit cell, i = 0, i, 2, ... N_unit_cell/2
+
+
+
+
+
 # Generate data:
 
 length_parameters = nanobeam_unitcell_lengths(N_unit_cells, beam_length)
@@ -139,31 +195,51 @@ print("0.5*(Beam length - L_d) - Length sum:", 0.5* (beam_length - L_d) - length
 w_max, w_min = return_two_lists(width_parameters)   #Seperates the max and min width parameters into two lists
 
 
+unit_cell_positions = generate_positions_of_unit_cells(N_unit_cells, L_d, length_parameters)
+half_unit_cell_position_max, half_unit_cell_position_min = generate_positions_of_half_unit_cells(N_unit_cells, L_d, length_parameters)
+
+print("\n Unit cell positions: \n")
+print(unit_cell_positions)
+print("\n Half unit cell positions max: \n")
+print(half_unit_cell_position_max)
+print("\n Half unit cell positions min: \n")
+print(half_unit_cell_position_min)
+
 
 # Write data generated to a .txt file:
 file1 = open("nanobeam_geometry_parameters.txt", "w")
 
-# String format of lists that hold the generated data to be printed to the text file
+# String format of lists that hold the generated data to be printed to the text file. Function adds units and converts to string format to be printed.
 L_width_parameters = add_units_to_parameter_list(width_parameters, length_units)  #str(width_parameters)
 L_length_parameters = add_units_to_parameter_list(length_parameters, length_units)  #str(length_parameters)
 L_w_max = add_units_to_parameter_list(w_max,length_units)  #str(w_max)
 L_w_min = add_units_to_parameter_list(w_min, length_units)  #str(w_min)
+L_unit_cell_positions = add_units_to_parameter_list(unit_cell_positions, length_units)  #str(unit_cell_positions)
+L_half_unit_cell_position_max = add_units_to_parameter_list(half_unit_cell_position_max, length_units)  #str(half_unit_cell_position_max)
+L_half_unit_cell_position_min = add_units_to_parameter_list(half_unit_cell_position_min, length_units)  #str(half_unit_cell_position_min)
 
 
 # \n is placed to indicate EOL (End of Line)
+file1.writelines("The generated parameters for the nanobeam include: unit cell widths, unit cell lengths, unit cell positions, and relevant program parameters used. \n \n \n \n ")
 file1.writelines('Width list [[w_max(i,j), w_min(i,j)]]: \n \n')
 file1.writelines(L_width_parameters)
-file1.writelines('\n \n Length list [L_c(i)]: \n \n')
+file1.writelines('\n \n \n Length list [L_c(i)]: \n \n')
 file1.writelines(L_length_parameters)
 file1.writelines("\n \n \n Length sum: ")
 file1.writelines(str(length_sum))
 file1.writelines("\n \n 0.5*(Beam length - L_d) - Length sum: ")
 file1.writelines(str(0.5* (beam_length - L_d) - length_sum))
-file1.writelines("\n \n \n Unit cell width maximums (w_max(i)): \n \n")
+file1.writelines("\n \n \n \n Unit cell width maximums (w_max(i)): \n \n")
 file1.writelines(L_w_max)
-file1.writelines("\n \n Unit cell width minimums (w_min(i)): \n \n")
+file1.writelines("\n \n \n Unit cell width minimums (w_min(i)): \n \n")
 file1.writelines(L_w_min)
-file1.writelines("\n \n \n \n Parameters used: ")
+file1.writelines("\n \n \n Unit cell positions: \n \n")
+file1.writelines(L_unit_cell_positions)
+file1.writelines("\n \n \n Unit cell half cell positions (max widths): \n \n")
+file1.writelines(L_half_unit_cell_position_max)
+file1.writelines("\n \n \n Unit cell half cell positions (min widths): \n \n")
+file1.writelines(L_half_unit_cell_position_min)
+file1.writelines("\n \n \n \n \n Parameters used: ")
 file1.writelines("\n \n Central defect length: ")
 file1.writelines(str(L_d))
 file1.writelines("\n \n Beam length: ")
@@ -217,6 +293,11 @@ file1.close()  # to change file access modes
 # l1, l2 = return_two_lists(l)
 # print(l1)
 # print(l2)
+
+# lst1 = [1, 2,3, 4, 5]
+#
+# print("lstsum ", sum_list_till_particular_index(lst1, 2, len(lst1)))
+# OUT: 12
 
 
 # Precursor/ideas to add_units_to_parameter_list() function:
