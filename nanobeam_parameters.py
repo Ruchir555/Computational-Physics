@@ -32,6 +32,7 @@ alpha_width = 0.15  #Parameter used in the calculation of the beam width, ranges
 i_0 = 8  #Parameter used in the calculation of the beam width, ranges from 8 to 10
 L_d = 50 * 10**(-6)  #Scale of 10^1 [um], Central defect length, this typically ranges from the 10s to 100 um
 length_units = ' [m] '   #Unit of meters, this is used in a function to generate numbers easily recognizable by COMSOL
+file_name = "nanobeam_geometry_parameters" + "_" + str(N_unit_cells) + "_unit_cells.txt"    #File name generated based on unit cell numbers
 
 
 
@@ -207,7 +208,7 @@ print(half_unit_cell_position_min)
 
 
 # Write data generated to a .txt file:
-file1 = open("nanobeam_geometry_parameters.txt", "w")
+file1 = open(file_name, "w")
 
 # String format of lists that hold the generated data to be printed to the text file. Function adds units and converts to string format to be printed.
 L_width_parameters = add_units_to_parameter_list(width_parameters, length_units)  #str(width_parameters)
@@ -258,7 +259,6 @@ file1.writelines(str(i_0))
 
 
 file1.close()  # to change file access modes
-
 
 
 
@@ -318,3 +318,7 @@ file1.close()  # to change file access modes
 
 # new_string = add_units_to_parameter_list(w_max, length_units)
 # print("\n\nnew\n", new_string)
+
+# Checking file name:
+# tst = 40
+# print("nanobeam" + "_" + str(tst))
