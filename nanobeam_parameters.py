@@ -20,6 +20,7 @@
 
 
 import math
+import datetime
 
 
 # Tunable parameters:
@@ -27,7 +28,7 @@ import math
 beam_length = 4 * 10**(-3)  #Scale of 10^0 [mm], this is the total nanobeam length
 beam_width_narrowest = 400 * 10**(-9)  #Scale of 10^2 [nm], this is the minimum beam width near the central defect
 beam_thickness = 20 * 10**(-9)  #Scale of 10^1 [nm], this parameter is not explicitly used in this program, just for reference
-N_unit_cells = 38  #This is the number of unit cells in the nanobeam, typically less than 100, must be an even number
+N_unit_cells = 50  #This is the number of unit cells in the nanobeam, typically less than 100, must be an even number
 alpha_width = 0.15  #Parameter used in the calculation of the beam width, ranges from 0.15 to 0.2
 i_0 = 8  #Parameter used in the calculation of the beam width, ranges from 8 to 10
 L_d = 50 * 10**(-6)  #Scale of 10^1 [um], Central defect length, this typically ranges from the 10s to 100 um
@@ -128,10 +129,13 @@ def add_units_to_parameter_list(parameter_list, unit):     #Function for adding 
 def sum_list_till_particular_index(lst, start_index, stop_index):
     accumulator = 0
 
-    if (stop_index < start_index):  # Edge case, this is the intended functionality
+    if (stop_index < start_index):  # Edge case, this is the intended functionality; for the first unit cell
         return 0
 
-    for i in range(start_index, stop_index):
+    if (stop_index == start_index): # For the second unit cell
+        return lst[0]
+
+    for i in range(start_index, stop_index+1):  #changed to +1 because range discards last index
         accumulator += lst[i]
 
     return accumulator
@@ -219,17 +223,22 @@ L_unit_cell_positions = add_units_to_parameter_list(unit_cell_positions, length_
 L_half_unit_cell_position_max = add_units_to_parameter_list(half_unit_cell_position_max, length_units)  #str(half_unit_cell_position_max)
 L_half_unit_cell_position_min = add_units_to_parameter_list(half_unit_cell_position_min, length_units)  #str(half_unit_cell_position_min)
 
+date = datetime.date.today()
+print(date)
+
 
 # \n is placed to indicate EOL (End of Line)
-file1.writelines("The generated parameters for the nanobeam include: unit cell widths, unit cell lengths, unit cell positions, and relevant program parameters used. \n \n \n \n ")
-file1.writelines('Width list [[w_max(i,j), w_min(i,j)]]: \n \n')
+file1.writelines("The generated parameters for the nanobeam include: unit cell widths, unit cell lengths, unit cell positions, and relevant program parameters used. \n \n")
+file1.writelines("\n \n Date Modified: ")
+file1.writelines(str(date))
+file1.writelines('\n \n \n \n Width list [[w_max(i,j), w_min(i,j)]]: \n \n')
 file1.writelines(L_width_parameters)
 file1.writelines('\n \n \n Length list [L_c(i)]: \n \n')
 file1.writelines(L_length_parameters)
-file1.writelines("\n \n \n Length sum: ")
-file1.writelines(str(length_sum))
-file1.writelines("\n \n 0.5*(Beam length - L_d) - Length sum: ")
-file1.writelines(str(0.5* (beam_length - L_d) - length_sum))
+file1.writelines("\n \n \n Length sum (should be very close to beam length): ")
+file1.writelines(str(length_sum)+ '[m]')
+file1.writelines("\n \n 0.5*(Beam length - L_d) - Length sum (should be <<1):")
+file1.writelines(str(0.5* (beam_length - L_d) - length_sum)+ '[m]')
 file1.writelines("\n \n \n \n Unit cell width maximums (w_max(i)): \n \n")
 file1.writelines(L_w_max)
 file1.writelines("\n \n \n Unit cell width minimums (w_min(i)): \n \n")
@@ -242,13 +251,13 @@ file1.writelines("\n \n \n Unit cell half cell positions (min widths): \n \n")
 file1.writelines(L_half_unit_cell_position_min)
 file1.writelines("\n \n \n \n \n Parameters used: ")
 file1.writelines("\n \n Central defect length: ")
-file1.writelines(str(L_d))
+file1.writelines(str(L_d)+ '[m]')
 file1.writelines("\n \n Beam length: ")
-file1.writelines(str(beam_length))
+file1.writelines(str(beam_length) + '[m]')
 file1.writelines("\n \n Minimum beam width: ")
-file1.writelines(str(beam_width_narrowest))
+file1.writelines(str(beam_width_narrowest)+ '[m]')
 file1.writelines("\n \n Beam thickness: ")
-file1.writelines(str(beam_thickness))
+file1.writelines(str(beam_thickness)+ '[m]')
 file1.writelines("\n \n Number of unit cells: ")
 file1.writelines(str(N_unit_cells))
 file1.writelines("\n \n Parameters used for tapering the width of the beam: ")
