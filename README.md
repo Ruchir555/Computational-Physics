@@ -25,3 +25,14 @@ python integration_methods.py
 ```
 
 That example prints the numerical estimates and writes its plots to `results/`.
+
+## Tests and continuous integration
+
+Run the numerical regression tests with:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+GitHub Actions runs the tests and generates the integration plots headlessly
+on Python 3.11 and 3.13 for every push and pull request.
